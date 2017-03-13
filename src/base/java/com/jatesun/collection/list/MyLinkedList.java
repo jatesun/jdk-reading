@@ -16,7 +16,7 @@ import java.util.Queue;
 
 /**  
  * @Title: MyLinkedList.java
- * @Description: 使用内部节点实现list接口的集合类
+ * @Description: 使用内部节点实现list接口的集合类,节点为双向的（即linkedlist为双向链表实现）
  * @author: jateSun  
  * @date: 2017年3月5日 下午7:03:46
  * @version: V1.0  
@@ -26,98 +26,48 @@ public class MyLinkedList<E> extends AbstractSequentialList<E> implements List<E
 	private transient Entry<E> header = new Entry<E>(null, null, null);
 	private transient int size = 0;
 
-	// 空构造方法，next和previous都指向自己
+	// 空构造方法，next和previous都指向自己,linkedlist没有指定size的构造方法
 	public MyLinkedList() {
 		header.next = header.previous = header;
 	}
 
-	/**
-	 * Constructs a list containing the elements of the specified
-	 * collection, in the order they are returned by the collection's
-	 * iterator.
-	 *
-	 * @param  c the collection whose elements are to be placed into this list
-	 * @throws NullPointerException if the specified collection is null
-	 */
 	public MyLinkedList(Collection<? extends E> c) {
 		this();
 		addAll(c);
 	}
 
-	/**
-	 * Returns the first element in this list.
-	 *
-	 * @return the first element in this list
-	 * @throws NoSuchElementException if this list is empty
-	 */
 	public E getFirst() {
+		// 没有元素抛异常，否则返回header.next
 		if (size == 0) throw new NoSuchElementException();
-
 		return header.next.element;
 	}
 
-	/**
-	 * Returns the last element in this list.
-	 *
-	 * @return the last element in this list
-	 * @throws NoSuchElementException if this list is empty
-	 */
 	public E getLast() {
+		// 这里可以看出list实际是环装结构
 		if (size == 0) throw new NoSuchElementException();
-
 		return header.previous.element;
 	}
 
-	/**
-	 * Removes and returns the first element from this list.
-	 *
-	 * @return the first element from this list
-	 * @throws NoSuchElementException if this list is empty
-	 */
 	public E removeFirst() {
+		// 调用remove(Entry e)方法
 		return remove(header.next);
 	}
 
-	/**
-	 * Removes and returns the last element from this list.
-	 *
-	 * @return the last element from this list
-	 * @throws NoSuchElementException if this list is empty
-	 */
 	public E removeLast() {
 		return remove(header.previous);
 	}
 
-	/**
-	 * Inserts the specified element at the beginning of this list.
-	 *
-	 * @param e the element to add
-	 */
 	public void addFirst(E e) {
+		// 调用addBefore(E e,Entry entry)在entry前插入元素
 		addBefore(e, header.next);
 	}
 
-	/**
-	 * Appends the specified element to the end of this list.
-	 *
-	 * <p>This method is equivalent to {@link #add}.
-	 *
-	 * @param e the element to add
-	 */
 	public void addLast(E e) {
 		addBefore(e, header);
 	}
 
-	/**
-	 * Returns <tt>true</tt> if this list contains the specified element.
-	 * More formally, returns <tt>true</tt> if and only if this list contains
-	 * at least one element <tt>e</tt> such that
-	 * <tt>(o==null&nbsp;?&nbsp;e==null&nbsp;:&nbsp;o.equals(e))</tt>.
-	 *
-	 * @param o element whose presence in this list is to be tested
-	 * @return <tt>true</tt> if this list contains the specified element
-	 */
 	public boolean contains(Object o) {
+		// 跟arraylist相似的indexOf方法
 		return indexOf(o) != -1;
 	}
 
