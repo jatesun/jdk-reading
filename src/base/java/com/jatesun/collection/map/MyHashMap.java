@@ -108,24 +108,22 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 	}
 
 	public V get(Object key) {
+		// 校验参数，入参检查程序健壮性必备步骤
 		if (key == null)
-			return getForNullKey();
+			return getForNullKey();// hashmap key可以为null。
 		int hash = hash(key.hashCode());
+		// indexfor知道hash对应的index位置，其实提出来看的更加明确，但是简单起见直接写到for循环条件里。
 		for (Entry<K, V> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
 			Object k;
+			//元素hash值相同、key的类型相同相等才认为找到
 			if (e.hash == hash && ((k = e.key) == key || key.equals(k)))
 				return e.value;
 		}
-		return null;
+		return null;//默认返回null
 	}
 
-	/**
-	 * Offloaded version of get() to look up null keys. Null keys map to index
-	 * 0. This null case is split out into separate methods for the sake of
-	 * performance in the two most commonly used operations (get and put), but
-	 * incorporated with conditionals in others.
-	 */
 	private V getForNullKey() {
+		// 可以看出由于null没有hash值所有null键默认存放在数组的第一个位置，我们日常开发遇到这种不能处理的情况也可以默认存在第一个位置
 		for (Entry<K, V> e = table[0]; e != null; e = e.next) {
 			if (e.key == null)
 				return e.value;
@@ -133,25 +131,13 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		return null;
 	}
 
-	/**
-	 * Returns <tt>true</tt> if this map contains a mapping for the specified
-	 * key.
-	 *
-	 * @param key
-	 *            The key whose presence in this map is to be tested
-	 * @return <tt>true</tt> if this map contains a mapping for the specified
-	 *         key.
-	 */
 	public boolean containsKey(Object key) {
 		return getEntry(key) != null;
 	}
 
-	/**
-	 * Returns the entry associated with the specified key in the HashMap.
-	 * Returns null if the HashMap contains no mapping for the key.
-	 */
 	final Entry<K, V> getEntry(Object key) {
-		int hash = (key == null) ? 0 : hash(key.hashCode());
+		int hash = (key == null) ? 0 : hash(key.hashCode());//获取hash值
+		//取key对应的值
 		for (Entry<K, V> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
 			Object k;
 			if (e.hash == hash && ((k = e.key) == key || (key != null && key.equals(k))))
@@ -479,15 +465,13 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		return result;
 	}
 
+	//entry类，最重要的内部数据结构（存放key、value、下个entry引用、hash值）
 	static class Entry<K, V> implements Map.Entry<K, V> {
 		final K key;
 		V value;
 		Entry<K, V> next;
 		final int hash;
 
-		/**
-		 * Creates new entry.
-		 */
 		Entry(int h, K k, V v, Entry<K, V> n) {
 			value = v;
 			next = n;
@@ -515,6 +499,7 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 			Map.Entry e = (Map.Entry) o;
 			Object k1 = getKey();
 			Object k2 = e.getKey();
+			//判断相等的依据是key和value都相等，而且比较是要类型，内容都相等才相等
 			if (k1 == k2 || (k1 != null && k1.equals(k2))) {
 				Object v1 = getValue();
 				Object v2 = e.getValue();
@@ -532,17 +517,9 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 			return getKey() + "=" + getValue();
 		}
 
-		/**
-		 * This method is invoked whenever the value in an entry is overwritten
-		 * by an invocation of put(k,v) for a key k that's already in the
-		 * HashMap.
-		 */
 		void recordAccess(MyHashMap<K, V> m) {
 		}
 
-		/**
-		 * This method is invoked whenever the entry is removed from the table.
-		 */
 		void recordRemoval(MyHashMap<K, V> m) {
 		}
 	}
