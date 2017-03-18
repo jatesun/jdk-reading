@@ -115,11 +115,11 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		// indexfor知道hash对应的index位置，其实提出来看的更加明确，但是简单起见直接写到for循环条件里。
 		for (Entry<K, V> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
 			Object k;
-			//元素hash值相同、key的类型相同相等才认为找到
+			// 元素hash值相同、key的类型相同相等才认为找到
 			if (e.hash == hash && ((k = e.key) == key || key.equals(k)))
 				return e.value;
 		}
-		return null;//默认返回null
+		return null;// 默认返回null
 	}
 
 	private V getForNullKey() {
@@ -136,8 +136,8 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 	}
 
 	final Entry<K, V> getEntry(Object key) {
-		int hash = (key == null) ? 0 : hash(key.hashCode());//获取hash值
-		//取key对应的值
+		int hash = (key == null) ? 0 : hash(key.hashCode());// 获取hash值
+		// 取key对应的index，然后在遍历该链表，如果找到对应的key返回对应的entry
 		for (Entry<K, V> e = table[indexFor(hash, table.length)]; e != null; e = e.next) {
 			Object k;
 			if (e.hash == hash && ((k = e.key) == key || (key != null && key.equals(k))))
@@ -146,25 +146,13 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		return null;
 	}
 
-	/**
-	 * Associates the specified value with the specified key in this map. If the
-	 * map previously contained a mapping for the key, the old value is
-	 * replaced.
-	 *
-	 * @param key
-	 *            key with which the specified value is to be associated
-	 * @param value
-	 *            value to be associated with the specified key
-	 * @return the previous value associated with <tt>key</tt>, or <tt>null</tt>
-	 *         if there was no mapping for <tt>key</tt>. (A <tt>null</tt> return
-	 *         can also indicate that the map previously associated
-	 *         <tt>null</tt> with <tt>key</tt>.)
-	 */
+	// put方法，如果原来存在就替换，不存在 就新建
 	public V put(K key, V value) {
 		if (key == null)
-			return putForNullKey(value);
+			return putForNullKey(value);// 如果为null，调用put null的专用值
 		int hash = hash(key.hashCode());
 		int i = indexFor(hash, table.length);
+		// 不为空计算出索引，然后遍历链表，找到就替换，找不到就新建
 		for (Entry<K, V> e = table[i]; e != null; e = e.next) {
 			Object k;
 			if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
@@ -176,14 +164,12 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		}
 
 		modCount++;
-		addEntry(hash, key, value, i);
+		addEntry(hash, key, value, i);// 找不到就添加
 		return null;
 	}
 
-	/**
-	 * Offloaded version of put for null keys
-	 */
 	private V putForNullKey(V value) {
+		// for循环遍历table[0]的链表，如果找到key为null则替换。
 		for (Entry<K, V> e = table[0]; e != null; e = e.next) {
 			if (e.key == null) {
 				V oldValue = e.value;
@@ -229,47 +215,37 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		}
 	}
 
-	/**
-	 * Rehashes the contents of this map into a new array with a larger
-	 * capacity. This method is called automatically when the number of keys in
-	 * this map reaches its threshold.
-	 *
-	 * If current capacity is MAXIMUM_CAPACITY, this method does not resize the
-	 * map, but sets threshold to Integer.MAX_VALUE. This has the effect of
-	 * preventing future calls.
-	 *
-	 * @param newCapacity
-	 *            the new capacity, MUST be a power of two; must be greater than
-	 *            current capacity unless current capacity is MAXIMUM_CAPACITY
-	 *            (in which case value is irrelevant).
-	 */
+	// 扩容操作，将原来的元素放到新的entry数组里
 	void resize(int newCapacity) {
 		Entry[] oldTable = table;
 		int oldCapacity = oldTable.length;
+		// 如果容量已经最大了，仅仅把临界容量变大一些即可。
 		if (oldCapacity == MAXIMUM_CAPACITY) {
 			threshold = Integer.MAX_VALUE;
 			return;
 		}
 
+		// 进行扩容转移操作
 		Entry[] newTable = new Entry[newCapacity];
 		transfer(newTable);
-		table = newTable;
+		table = newTable;// 将新的entry数组索引付给新的table
+		// 重新计算扩容边界大小
 		threshold = (int) (newCapacity * loadFactor);
 	}
 
-	/**
-	 * Transfers all entries from current table to newTable.
-	 */
+	// 将旧元素移到新的元素数组里
 	void transfer(Entry[] newTable) {
 		Entry[] src = table;
 		int newCapacity = newTable.length;
+		// for循环从旧元素数组第一个索引开始，将每个索引对应的链表放到新的元素数组
 		for (int j = 0; j < src.length; j++) {
-			Entry<K, V> e = src[j];
-			if (e != null) {
+			Entry<K, V> e = src[j];// j对应的原entry
+			if (e != null) {// 不到链表的末尾就继续操作
 				src[j] = null;
 				do {
 					Entry<K, V> next = e.next;
 					int i = indexFor(e.hash, newCapacity);
+					// 使用newtable[i]作为中间变量，将e放到newtable[i]、并且e变为了next。
 					e.next = newTable[i];
 					newTable[i] = e;
 					e = next;
@@ -278,30 +254,10 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		}
 	}
 
-	/**
-	 * Copies all of the mappings from the specified map to this map. These
-	 * mappings will replace any mappings that this map had for any of the keys
-	 * currently in the specified map.
-	 *
-	 * @param m
-	 *            mappings to be stored in this map
-	 * @throws NullPointerException
-	 *             if the specified map is null
-	 */
 	public void putAll(Map<? extends K, ? extends V> m) {
 		int numKeysToBeAdded = m.size();
 		if (numKeysToBeAdded == 0)
 			return;
-
-		/*
-		 * Expand the map if the map if the number of mappings to be added is
-		 * greater than or equal to threshold. This is conservative; the obvious
-		 * condition is (m.size() + size) >= threshold, but this condition could
-		 * result in a map with twice the appropriate capacity, if the keys to
-		 * be added overlap with the keys already in this map. By using the
-		 * conservative calculation, we subject ourself to at most one extra
-		 * resize.
-		 */
 		if (numKeysToBeAdded > threshold) {
 			int targetCapacity = (int) (numKeysToBeAdded / loadFactor + 1);
 			if (targetCapacity > MAXIMUM_CAPACITY)
@@ -465,7 +421,7 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		return result;
 	}
 
-	//entry类，最重要的内部数据结构（存放key、value、下个entry引用、hash值）
+	// entry类，最重要的内部数据结构（存放key、value、下个entry引用、hash值）
 	static class Entry<K, V> implements Map.Entry<K, V> {
 		final K key;
 		V value;
@@ -499,7 +455,7 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 			Map.Entry e = (Map.Entry) o;
 			Object k1 = getKey();
 			Object k2 = e.getKey();
-			//判断相等的依据是key和value都相等，而且比较是要类型，内容都相等才相等
+			// 判断相等的依据是key和value都相等，而且比较是要类型，内容都相等才相等
 			if (k1 == k2 || (k1 != null && k1.equals(k2))) {
 				Object v1 = getValue();
 				Object v2 = e.getValue();
@@ -524,16 +480,11 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		}
 	}
 
-	/**
-	 * Adds a new entry with the specified key, value and hash code to the
-	 * specified bucket. It is the responsibility of this method to resize the
-	 * table if appropriate.
-	 *
-	 * Subclass overrides this to alter the behavior of put method.
-	 */
+	// 增加entry，注意实在链表的最前面添加而不是后面
 	void addEntry(int hash, K key, V value, int bucketIndex) {
-		Entry<K, V> e = table[bucketIndex];
-		table[bucketIndex] = new Entry<K, V>(hash, key, value, e);
+		Entry<K, V> e = table[bucketIndex];// 取出排头的第一个entry。
+		table[bucketIndex] = new Entry<K, V>(hash, key, value, e);// new一个entry，next为原来的第一个元素。排头元素改为自己。
+		// 有必要就扩容。
 		if (size++ >= threshold)
 			resize(2 * table.length);
 	}
