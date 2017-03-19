@@ -5,12 +5,15 @@ jdk关键类的阅读注释，理解。针对java日常开发中使用最多的�
 对应的模块为src/base/java。里面的模块是自己认为日常开发最常用的类，深入理解这些类会让我们日常开发用到这些类的时候更加的随心所欲，也能进一
 步加深理解。主要包括java.lang里面的集合包、java.io和java.lang主要类。
 #### 详细目录
-├── com.jatesun.collection   // Java集合
-├── com.jatesun.collection.list  // Java集合List
-├── com.jatesun.collection.map   // Java集合Map
-├── com.jatesun.collection.other // Java集合其他杂项
-├── com.jatesun.collection.queue // Java集合queue
-├── com.jatesun.collection.set   // Java集合Set
+├── com.jatesun.collection   //Java集合
+
+├── com.jatesun.collection.list  //Java集合List
+
+├── com.jatesun.collection.map   //Java集合Map
+
+├── com.jatesun.collection.other //Java集合其他杂项
+├── com.jatesun.collection.queue //Java集合queue
+├── com.jatesun.collection.set   //Java集合Set
 ## advance
 对应模块为src/advance/java。里面的模块是自己认为日常开发中能够体现出初级跟中高级开发人员区别的包，这些包用的好坏、理解的深浅是
 鉴定一个程序员是否合格的重要标志，同时也是向更深层次进阶的基础。主要包括反射、net包、nio相关、concurrent包相关。
