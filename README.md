@@ -12,7 +12,9 @@ jdk关键类的阅读注释，理解。针对java日常开发中使用最多的�
 ├── com.jatesun.collection.map   //Java集合Map
 
 ├── com.jatesun.collection.other //Java集合其他杂项
+
 ├── com.jatesun.collection.queue //Java集合queue
+
 ├── com.jatesun.collection.set   //Java集合Set
 ## advance
 对应模块为src/advance/java。里面的模块是自己认为日常开发中能够体现出初级跟中高级开发人员区别的包，这些包用的好坏、理解的深浅是
