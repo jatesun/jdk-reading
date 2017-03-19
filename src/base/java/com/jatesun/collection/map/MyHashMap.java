@@ -25,6 +25,7 @@ import java.util.Set;
  * 
  * @author jatesun
  * @descipt hashmap(jdk1.6)内部实现其实是entry组成的数组，而每个数组索引的entry又是一个链表。
+ *          所以hashmap是数组加链表实现的。
  *          详解见博客，如果对散列不了解也可以阅读博客：http://jatesun.github.io（散列表面面观）
  * @param <K>
  * @param <V>
@@ -179,24 +180,14 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 			}
 		}
 		modCount++;
-		addEntry(0, null, value, 0);
+		addEntry(0, null, value, 0);// 不存在就新建
 		return null;
 	}
 
-	/**
-	 * This method is used instead of put by constructors and pseudoconstructors
-	 * (clone, readObject). It does not resize the table, check for
-	 * comodification, etc. It calls createEntry rather than addEntry.
-	 */
+	// 只在clone和readobject方法时用到这个方法。
 	private void putForCreate(K key, V value) {
 		int hash = (key == null) ? 0 : hash(key.hashCode());
 		int i = indexFor(hash, table.length);
-
-		/**
-		 * Look for preexisting entry for key. This will never happen for clone
-		 * or deserialize. It will only happen for construction if the input Map
-		 * is a sorted map whose ordering is inconsistent w/ equals.
-		 */
 		for (Entry<K, V> e = table[i]; e != null; e = e.next) {
 			Object k;
 			if (e.hash == hash && ((k = e.key) == key || (key != null && key.equals(k)))) {
@@ -224,7 +215,6 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 			threshold = Integer.MAX_VALUE;
 			return;
 		}
-
 		// 进行扩容转移操作
 		Entry[] newTable = new Entry[newCapacity];
 		transfer(newTable);
@@ -258,45 +248,36 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		int numKeysToBeAdded = m.size();
 		if (numKeysToBeAdded == 0)
 			return;
-		if (numKeysToBeAdded > threshold) {
+		// 这里仅计算要添加的m的大小 与 threshold相比，而不是跟m加原来map大小。（方便起见？）
+		if (numKeysToBeAdded > threshold) {// 添加的元素大于扩容边界
+			// 计算targetcapacity（需要添加的元素大小 除 装填因子）
 			int targetCapacity = (int) (numKeysToBeAdded / loadFactor + 1);
 			if (targetCapacity > MAXIMUM_CAPACITY)
 				targetCapacity = MAXIMUM_CAPACITY;
+			// 计算数组元素需要的大小，并resize大小。
 			int newCapacity = table.length;
 			while (newCapacity < targetCapacity)
 				newCapacity <<= 1;
 			if (newCapacity > table.length)
 				resize(newCapacity);
 		}
-
+		// 调整完后，for循环添加元素。
 		for (Iterator<? extends Map.Entry<? extends K, ? extends V>> i = m.entrySet().iterator(); i.hasNext();) {
 			Map.Entry<? extends K, ? extends V> e = i.next();
 			put(e.getKey(), e.getValue());
 		}
 	}
 
-	/**
-	 * Removes the mapping for the specified key from this map if present.
-	 *
-	 * @param key
-	 *            key whose mapping is to be removed from the map
-	 * @return the previous value associated with <tt>key</tt>, or <tt>null</tt>
-	 *         if there was no mapping for <tt>key</tt>. (A <tt>null</tt> return
-	 *         can also indicate that the map previously associated
-	 *         <tt>null</tt> with <tt>key</tt>.)
-	 */
 	public V remove(Object key) {
 		Entry<K, V> e = removeEntryForKey(key);
 		return (e == null ? null : e.value);
 	}
 
-	/**
-	 * Removes and returns the entry associated with the specified key in the
-	 * HashMap. Returns null if the HashMap contains no mapping for this key.
-	 */
+	// 根据key删除entry方法。找到对应的数组索引，遍历链表找到key然后删除即可。
 	final Entry<K, V> removeEntryForKey(Object key) {
 		int hash = (key == null) ? 0 : hash(key.hashCode());
 		int i = indexFor(hash, table.length);
+		// 将 prev e赋值，初始为第一个
 		Entry<K, V> prev = table[i];
 		Entry<K, V> e = prev;
 
@@ -306,13 +287,14 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 			if (e.hash == hash && ((k = e.key) == key || (key != null && key.equals(k)))) {
 				modCount++;
 				size--;
-				if (prev == e)
+				if (prev == e)// 如果第一个元素就是要删除的元素
 					table[i] = next;
-				else
+				else// 其他情况，将prev.next指向next，这样当前元素就被删除。
 					prev.next = next;
 				e.recordRemoval(this);
 				return e;
 			}
+			// 没找到，进行下一个元素比较
 			prev = e;
 			e = next;
 		}
@@ -320,9 +302,7 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		return e;
 	}
 
-	/**
-	 * Special version of remove for EntrySet.
-	 */
+	// 根据对象删除o，内部其实也是先取到key然后根据key操作
 	final Entry<K, V> removeMapping(Object o) {
 		if (!(o instanceof Map.Entry))
 			return null;
@@ -353,44 +333,31 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		return e;
 	}
 
-	/**
-	 * Removes all of the mappings from this map. The map will be empty after
-	 * this call returns.
-	 */
 	public void clear() {
 		modCount++;
-		Entry[] tab = table;
+		Entry[] tab = table;// 将table引用付给tab
+		// 直接将entry数组的头元素置null即可。每个entry数组索引对应的entry链表没有引用了自然会被gc回收
+		// 这里涉及到gc的知识点，有的童鞋不明白为什么不用清理链表，其实这里涉及到gc的部分内容，博文也会介绍jvm的知识
 		for (int i = 0; i < tab.length; i++)
 			tab[i] = null;
 		size = 0;
 	}
 
-	/**
-	 * Returns <tt>true</tt> if this map maps one or more keys to the specified
-	 * value.
-	 *
-	 * @param value
-	 *            value whose presence in this map is to be tested
-	 * @return <tt>true</tt> if this map maps one or more keys to the specified
-	 *         value
-	 */
 	public boolean containsValue(Object value) {
 		if (value == null)
-			return containsNullValue();
-
+			return containsNullValue();// 允许value为null，特殊的null值方法
+		// 双层for循环，没什么好讲的
 		Entry[] tab = table;
 		for (int i = 0; i < tab.length; i++)
 			for (Entry e = tab[i]; e != null; e = e.next)
-				if (value.equals(e.value))
+				if (value.equals(e.value))// 注意这里，把你确定有值的数放前面，否则会NPE
 					return true;
 		return false;
 	}
 
-	/**
-	 * Special-case code for containsValue with null argument
-	 */
 	private boolean containsNullValue() {
 		Entry[] tab = table;
+		// 双层for循环
 		for (int i = 0; i < tab.length; i++)
 			for (Entry e = tab[i]; e != null; e = e.next)
 				if (e.value == null)
@@ -398,12 +365,6 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		return false;
 	}
 
-	/**
-	 * Returns a shallow copy of this <tt>HashMap</tt> instance: the keys and
-	 * values themselves are not cloned.
-	 *
-	 * @return a shallow copy of this map
-	 */
 	public Object clone() {
 		MyHashMap<K, V> result = null;
 		try {
@@ -489,20 +450,14 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 			resize(2 * table.length);
 	}
 
-	/**
-	 * Like addEntry except that this version is used when creating entries as
-	 * part of Map construction or "pseudo-construction" (cloning,
-	 * deserialization). This version needn't worry about resizing the table.
-	 *
-	 * Subclass overrides this to alter the behavior of HashMap(Map), clone, and
-	 * readObject.
-	 */
+	// 不需要考虑size变化的createentry方法
 	void createEntry(int hash, K key, V value, int bucketIndex) {
 		Entry<K, V> e = table[bucketIndex];
 		table[bucketIndex] = new Entry<K, V>(hash, key, value, e);
 		size++;
 	}
 
+	// 剩下略
 	private abstract class HashIterator<E> implements Iterator<E> {
 		Entry<K, V> next; // next entry to return
 		int expectedModCount; // For fast-fail
