@@ -27,6 +27,15 @@ import java.util.Set;
  * @descipt hashmap(jdk1.6)内部实现其实是entry组成的数组，而每个数组索引的entry又是一个链表。
  *          所以hashmap是数组加链表实现的。
  *          详解见博客，如果对散列不了解也可以阅读博客：http://jatesun.github.io（散列表面面观）
+ * @question 如果下面的问题你能说个差不多，那么你的hashmap的原理也比较清楚了
+ * 		·hashmap的数据结构，或者说是怎样实现的？
+ * 		·hashmap是否是有序的？为什么是有序（无序）的？
+ * 		·hashmap如何处理散列冲突？
+ * 		·hashmap存、取、删元素的步骤？
+ * 		·hashmap容量过大后，如何调整，或者说resize方法细节？
+ * 		·hashmap为什么常用string来作为key？
+ * 		·hashmap是否线程安全？为什么不是线程安全的？
+ * 		·为什么容量大小必须为2的指数？
  * @param <K>
  * @param <V>
  */
@@ -382,7 +391,7 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>, Clo
 		return result;
 	}
 
-	// entry类，最重要的内部数据结构（存放key、value、下个entry引用、hash值）
+	// entry类，最重要的内部数据结构（存放key、value、下个entry引用、hash值(key的)）
 	static class Entry<K, V> implements Map.Entry<K, V> {
 		final K key;
 		V value;
