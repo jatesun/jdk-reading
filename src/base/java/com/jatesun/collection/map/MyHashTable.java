@@ -31,7 +31,7 @@ import java.util.Set;
  * @question
  * 		·hashtable和hashmap的关联？
  * 			相同：数据结构相同（都是entry数组加链表实现）
- * 			不同：hashtable不允许null值
+ * 			不同：hashtable不允许null值、hashtable线程安全
  * @date 2017年3月20日
  * @param <K>
  * @param <V>
