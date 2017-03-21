@@ -30,6 +30,8 @@ import java.util.Set;
  * 		hashtable是线程安全的hash集合，内部实现的数据结构跟hashmap相同。
  * @question
  * 		·hashtable和hashmap的关联？
+ * 			相同：数据结构相同（都是entry数组加链表实现）
+ * 			不同：hashtable不允许null值
  * @date 2017年3月20日
  * @param <K>
  * @param <V>
@@ -89,43 +91,18 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		return this.<K> getEnumeration(KEYS);
 	}
 
-	/**
-	 * Returns an enumeration of the values in this hashtable.
-	 * Use the Enumeration methods on the returned object to fetch the elements
-	 * sequentially.
-	 *
-	 * @return  an enumeration of the values in this hashtable.
-	 * @see     java.util.Enumeration
-	 * @see     #keys()
-	 * @see	#values()
-	 * @see	Map
-	 */
 	public synchronized Enumeration<V> elements() {
 		return this.<V> getEnumeration(VALUES);
 	}
 
-	/**
-	 * Tests if some key maps into the specified value in this hashtable.
-	 * This operation is more expensive than the {@link #containsKey
-	 * containsKey} method.
-	 *
-	 * <p>Note that this method is identical in functionality to
-	 * {@link #containsValue containsValue}, (which is part of the
-	 * {@link Map} interface in the collections framework).
-	 *
-	 * @param      value   a value to search for
-	 * @return     <code>true</code> if and only if some key maps to the
-	 *             <code>value</code> argument in this hashtable as
-	 *             determined by the <tt>equals</tt> method;
-	 *             <code>false</code> otherwise.
-	 * @exception  NullPointerException  if the value is <code>null</code>
-	 */
 	public synchronized boolean contains(Object value) {
+		// hashtable不允许null
 		if (value == null) {
 			throw new NullPointerException();
 		}
 
 		Entry tab[] = table;
+		// 双层for循环遍历
 		for (int i = tab.length; i-- > 0;) {
 			for (Entry<K, V> e = tab[i]; e != null; e = e.next) {
 				if (e.value.equals(value)) {
@@ -136,36 +113,15 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		return false;
 	}
 
-	/**
-	 * Returns true if this hashtable maps one or more keys to this value.
-	 *
-	 * <p>Note that this method is identical in functionality to {@link
-	 * #contains contains} (which predates the {@link Map} interface).
-	 *
-	 * @param value value whose presence in this hashtable is to be tested
-	 * @return <tt>true</tt> if this map maps one or more keys to the
-	 *         specified value
-	 * @throws NullPointerException  if the value is <code>null</code>
-	 * @since 1.2
-	 */
 	public boolean containsValue(Object value) {
 		return contains(value);
 	}
 
-	/**
-	 * Tests if the specified object is a key in this hashtable.
-	 *
-	 * @param   key   possible key
-	 * @return  <code>true</code> if and only if the specified object
-	 *          is a key in this hashtable, as determined by the
-	 *          <tt>equals</tt> method; <code>false</code> otherwise.
-	 * @throws  NullPointerException  if the key is <code>null</code>
-	 * @see     #contains(Object)
-	 */
 	public synchronized boolean containsKey(Object key) {
 		Entry tab[] = table;
 		int hash = key.hashCode();
-		int index = (hash & 0x7FFFFFFF) % tab.length;
+		int index = (hash & 0x7FFFFFFF) % tab.length;// 与hashmap的index计算方法不同。也没有再hash
+		// for循环查找链表
 		for (Entry<K, V> e = tab[index]; e != null; e = e.next) {
 			if ((e.hash == hash) && e.key.equals(key)) {
 				return true;
@@ -174,21 +130,6 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		return false;
 	}
 
-	/**
-	 * Returns the value to which the specified key is mapped,
-	 * or {@code null} if this map contains no mapping for the key.
-	 *
-	 * <p>More formally, if this map contains a mapping from a key
-	 * {@code k} to a value {@code v} such that {@code (key.equals(k))},
-	 * then this method returns {@code v}; otherwise it returns
-	 * {@code null}.  (There can be at most one such mapping.)
-	 *
-	 * @param key the key whose associated value is to be returned
-	 * @return the value to which the specified key is mapped, or
-	 *         {@code null} if this map contains no mapping for the key
-	 * @throws NullPointerException if the specified key is null
-	 * @see     #put(Object, Object)
-	 */
 	public synchronized V get(Object key) {
 		Entry tab[] = table;
 		int hash = key.hashCode();
@@ -201,13 +142,7 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		return null;
 	}
 
-	/**
-	 * Increases the capacity of and internally reorganizes this
-	 * hashtable, in order to accommodate and access its entries more
-	 * efficiently.  This method is called automatically when the
-	 * number of keys in the hashtable exceeds this hashtable's capacity
-	 * and load factor.
-	 */
+	// 需要扩容之后的rehash。
 	protected void rehash() {
 		int oldCapacity = table.length;
 		Entry[] oldMap = table;
@@ -231,30 +166,12 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		}
 	}
 
-	/**
-	 * Maps the specified <code>key</code> to the specified
-	 * <code>value</code> in this hashtable. Neither the key nor the
-	 * value can be <code>null</code>. <p>
-	 *
-	 * The value can be retrieved by calling the <code>get</code> method
-	 * with a key that is equal to the original key.
-	 *
-	 * @param      key     the hashtable key
-	 * @param      value   the value
-	 * @return     the previous value of the specified key in this hashtable,
-	 *             or <code>null</code> if it did not have one
-	 * @exception  NullPointerException  if the key or value is
-	 *               <code>null</code>
-	 * @see     Object#equals(Object)
-	 * @see     #get(Object)
-	 */
 	public synchronized V put(K key, V value) {
-		// Make sure the value is not null
 		if (value == null) {
 			throw new NullPointerException();
 		}
 
-		// Makes sure the key is not already in the hashtable.
+		// 如果已经存在就替换value。
 		Entry tab[] = table;
 		int hash = key.hashCode();
 		int index = (hash & 0x7FFFFFFF) % tab.length;
@@ -267,30 +184,20 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		}
 
 		modCount++;
+		// 如果不存在节点，需要判断是否扩容
 		if (count >= threshold) {
-			// Rehash the table if the threshold is exceeded
 			rehash();
-
 			tab = table;
 			index = (hash & 0x7FFFFFFF) % tab.length;
 		}
 
-		// Creates the new entry.
+		// 在链表中添加新的节点
 		Entry<K, V> e = tab[index];
 		tab[index] = new Entry<K, V>(hash, key, value, e);
 		count++;
 		return null;
 	}
 
-	/**
-	 * Removes the key (and its corresponding value) from this
-	 * hashtable. This method does nothing if the key is not in the hashtable.
-	 *
-	 * @param   key   the key that needs to be removed
-	 * @return  the value to which the key had been mapped in this hashtable,
-	 *          or <code>null</code> if the key did not have a mapping
-	 * @throws  NullPointerException  if the key is <code>null</code>
-	 */
 	public synchronized V remove(Object key) {
 		Entry tab[] = table;
 		int hash = key.hashCode();
@@ -301,6 +208,7 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 				if (prev != null) {
 					prev.next = e.next;
 				} else {
+					// 删除的首元素，在hashmap中的remove也有类似地if else。
 					tab[index] = e.next;
 				}
 				count--;
@@ -312,23 +220,12 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		return null;
 	}
 
-	/**
-	 * Copies all of the mappings from the specified map to this hashtable.
-	 * These mappings will replace any mappings that this hashtable had for any
-	 * of the keys currently in the specified map.
-	 *
-	 * @param t mappings to be stored in this map
-	 * @throws NullPointerException if the specified map is null
-	 * @since 1.2
-	 */
 	public synchronized void putAll(Map<? extends K, ? extends V> t) {
 		for (Map.Entry<? extends K, ? extends V> e : t.entrySet())
 			put(e.getKey(), e.getValue());
 	}
 
-	/**
-	 * Clears this hashtable so that it contains no keys.
-	 */
+	// 跟hashmap差不多，不赘述
 	public synchronized void clear() {
 		Entry tab[] = table;
 		modCount++;
@@ -337,13 +234,6 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		count = 0;
 	}
 
-	/**
-	 * Creates a shallow copy of this hashtable. All the structure of the
-	 * hashtable itself is copied, but the keys and values are not cloned.
-	 * This is a relatively expensive operation.
-	 *
-	 * @return  a clone of the hashtable
-	 */
 	public synchronized Object clone() {
 		try {
 			MyHashTable<K, V> t = (MyHashTable<K, V>) super.clone();
@@ -362,16 +252,6 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		}
 	}
 
-	/**
-	 * Returns a string representation of this <tt>Hashtable</tt> object
-	 * in the form of a set of entries, enclosed in braces and separated
-	 * by the ASCII characters "<tt>,&nbsp;</tt>" (comma and space). Each
-	 * entry is rendered as the key, an equals sign <tt>=</tt>, and the
-	 * associated element, where the <tt>toString</tt> method is used to
-	 * convert the key and element to strings.
-	 *
-	 * @return  a string representation of this hashtable
-	 */
 	public synchronized String toString() {
 		int max = size() - 1;
 		if (max == -1)
@@ -413,30 +293,10 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 
 	// Views
 
-	/**
-	 * Each of these fields are initialized to contain an instance of the
-	 * appropriate view the first time this view is requested.  The views are
-	 * stateless, so there's no reason to create more than one of each.
-	 */
-	private transient volatile Set<K> keySet = null;
-	private transient volatile Set<Map.Entry<K, V>> entrySet = null;
+	private transient volatile Set<K> keySet = null;// 对应的key set
+	private transient volatile Set<Map.Entry<K, V>> entrySet = null;// 对应的entryset
 	private transient volatile Collection<V> values = null;
 
-	/**
-	 * Returns a {@link Set} view of the keys contained in this map.
-	 * The set is backed by the map, so changes to the map are
-	 * reflected in the set, and vice-versa.  If the map is modified
-	 * while an iteration over the set is in progress (except through
-	 * the iterator's own <tt>remove</tt> operation), the results of
-	 * the iteration are undefined.  The set supports element removal,
-	 * which removes the corresponding mapping from the map, via the
-	 * <tt>Iterator.remove</tt>, <tt>Set.remove</tt>,
-	 * <tt>removeAll</tt>, <tt>retainAll</tt>, and <tt>clear</tt>
-	 * operations.  It does not support the <tt>add</tt> or <tt>addAll</tt>
-	 * operations.
-	 *
-	 * @since 1.2
-	 */
 	public Set<K> keySet() {
 		// if (keySet == null)
 		// keySet = Collections.synchronizedSet(new KeySet(), this);
@@ -587,15 +447,6 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 
 	// Comparison and hashing
 
-	/**
-	 * Compares the specified Object with this Map for equality,
-	 * as per the definition in the Map interface.
-	 *
-	 * @param  o object to be compared for equality with this hashtable
-	 * @return true if the specified Object is equal to this Map
-	 * @see Map#equals(Object)
-	 * @since 1.2
-	 */
 	public synchronized boolean equals(Object o) {
 		if (o == this)
 			return true;
@@ -629,23 +480,7 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		return true;
 	}
 
-	/**
-	 * Returns the hash code value for this Map as per the definition in the
-	 * Map interface.
-	 *
-	 * @see Map#hashCode()
-	 * @since 1.2
-	 */
 	public synchronized int hashCode() {
-		/*
-		 * This code detects the recursion caused by computing the hash code of
-		 * a self-referential hash table and prevents the stack overflow that
-		 * would otherwise result. This allows certain 1.1-era applets with
-		 * self-referential hash tables to work. This code abuses the loadFactor
-		 * field to do double-duty as a hashCode in progress flag, so as not to
-		 * worsen the space performance. A negative load factor indicates that
-		 * hash code computation is in progress.
-		 */
 		int h = 0;
 		if (count == 0 || loadFactor < 0)
 			return h; // Returns zero
@@ -660,16 +495,6 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		return h;
 	}
 
-	/**
-	 * Save the state of the Hashtable to a stream (i.e., serialize it).
-	 *
-	 * @serialData The <i>capacity</i> of the Hashtable (the length of the
-	 *		   bucket array) is emitted (int), followed by the
-	 *		   <i>size</i> of the Hashtable (the number of key-value
-	 *		   mappings), followed by the key (Object) and value (Object)
-	 *		   for each key-value mapping represented by the Hashtable
-	 *		   The key-value mappings are emitted in no particular order.
-	 */
 	private synchronized void writeObject(java.io.ObjectOutputStream s) throws IOException {
 		// Write out the length, threshold, loadfactor
 		s.defaultWriteObject();
@@ -752,9 +577,7 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		count++;
 	}
 
-	/**
-	 * Hashtable collision list.
-	 */
+	// hashtable的entry节点。与hashmap的一样，不在详解
 	private static class Entry<K, V> implements Map.Entry<K, V> {
 		int hash;
 		K key;
@@ -771,8 +594,6 @@ public class MyHashTable<K, V> extends Dictionary<K, V> implements Map<K, V>, Cl
 		protected Object clone() {
 			return new Entry<K, V>(hash, key, value, (next == null ? null : (Entry<K, V>) next.clone()));
 		}
-
-		// Map.Entry Ops
 
 		public K getKey() {
 			return key;
