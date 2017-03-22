@@ -16,40 +16,15 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 
 	private static final long serialVersionUID = 3801124242820219131L;
 
-	/**
-	 * The head of the doubly linked list.
-	 */
 	private transient Entry<K, V> header;
 
-	/**
-	 * The iteration ordering method for this linked hash map: <tt>true</tt>
-	 * for access-order, <tt>false</tt> for insertion-order.
-	 *
-	 * @serial
-	 */
 	private final boolean accessOrder;
 
-	/**
-	 * Constructs an empty insertion-ordered <tt>LinkedHashMap</tt> instance
-	 * with the specified initial capacity and load factor.
-	 *
-	 * @param  initialCapacity the initial capacity
-	 * @param  loadFactor      the load factor
-	 * @throws IllegalArgumentException if the initial capacity is negative
-	 *         or the load factor is nonpositive
-	 */
 	public MyLinkedHashMap(int initialCapacity, float loadFactor) {
 		super(initialCapacity, loadFactor);
 		accessOrder = false;
 	}
 
-	/**
-	 * Constructs an empty insertion-ordered <tt>LinkedHashMap</tt> instance
-	 * with the specified initial capacity and a default load factor (0.75).
-	 *
-	 * @param  initialCapacity the initial capacity
-	 * @throws IllegalArgumentException if the initial capacity is negative
-	 */
 	public MyLinkedHashMap(int initialCapacity) {
 		super(initialCapacity);
 		accessOrder = false;
