@@ -16,9 +16,9 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 
 	private static final long serialVersionUID = 3801124242820219131L;
 
-	private transient Entry<K, V> header;
+	private transient Entry<K, V> header;// 头节点
 
-	private final boolean accessOrder;
+	private final boolean accessOrder;// TODO
 
 	public MyLinkedHashMap(int initialCapacity, float loadFactor) {
 		super(initialCapacity, loadFactor);
@@ -30,60 +30,26 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 		accessOrder = false;
 	}
 
-	/**
-	 * Constructs an empty insertion-ordered <tt>LinkedHashMap</tt> instance
-	 * with the default initial capacity (16) and load factor (0.75).
-	 */
 	public MyLinkedHashMap() {
 		super();
 		accessOrder = false;
 	}
 
-	/**
-	 * Constructs an insertion-ordered <tt>LinkedHashMap</tt> instance with
-	 * the same mappings as the specified map.  The <tt>LinkedHashMap</tt>
-	 * instance is created with a default load factor (0.75) and an initial
-	 * capacity sufficient to hold the mappings in the specified map.
-	 *
-	 * @param  m the map whose mappings are to be placed in this map
-	 * @throws NullPointerException if the specified map is null
-	 */
 	public MyLinkedHashMap(Map<? extends K, ? extends V> m) {
 		super(m);
 		accessOrder = false;
 	}
 
-	/**
-	 * Constructs an empty <tt>LinkedHashMap</tt> instance with the
-	 * specified initial capacity, load factor and ordering mode.
-	 *
-	 * @param  initialCapacity the initial capacity
-	 * @param  loadFactor      the load factor
-	 * @param  accessOrder     the ordering mode - <tt>true</tt> for
-	 *         access-order, <tt>false</tt> for insertion-order
-	 * @throws IllegalArgumentException if the initial capacity is negative
-	 *         or the load factor is nonpositive
-	 */
 	public MyLinkedHashMap(int initialCapacity, float loadFactor, boolean accessOrder) {
 		super(initialCapacity, loadFactor);
 		this.accessOrder = accessOrder;
 	}
 
-	/**
-	 * Called by superclass constructors and pseudoconstructors (clone,
-	 * readObject) before any entries are inserted into the map.  Initializes
-	 * the chain.
-	 */
 	void init() {
 		header = new Entry<K, V>(-1, null, null, null);
 		header.before = header.after = header;
 	}
 
-	/**
-	 * Transfers all entries to new table array.  This method is called
-	 * by superclass resize.  It is overridden for performance, as it is
-	 * faster to iterate using our linked list.
-	 */
 	void transfer(MyHashMap.Entry[] newTable) {
 		int newCapacity = newTable.length;
 		for (Entry<K, V> e = header.after; e != header; e = e.after) {
@@ -93,14 +59,6 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 		}
 	}
 
-	/**
-	 * Returns <tt>true</tt> if this map maps one or more keys to the
-	 * specified value.
-	 *
-	 * @param value value whose presence in this map is to be tested
-	 * @return <tt>true</tt> if this map maps one or more keys to the
-	 *         specified value
-	 */
 	public boolean containsValue(Object value) {
 		// Overridden to take advantage of faster iterator
 		if (value == null) {
@@ -115,21 +73,6 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 		return false;
 	}
 
-	/**
-	 * Returns the value to which the specified key is mapped,
-	 * or {@code null} if this map contains no mapping for the key.
-	 *
-	 * <p>More formally, if this map contains a mapping from a key
-	 * {@code k} to a value {@code v} such that {@code (key==null ? k==null :
-	 * key.equals(k))}, then this method returns {@code v}; otherwise
-	 * it returns {@code null}.  (There can be at most one such mapping.)
-	 *
-	 * <p>A return value of {@code null} does not <i>necessarily</i>
-	 * indicate that the map contains no mapping for the key; it's also
-	 * possible that the map explicitly maps the key to {@code null}.
-	 * The {@link #containsKey containsKey} operation may be used to
-	 * distinguish these two cases.
-	 */
 	public V get(Object key) {
 		Entry<K, V> e = (Entry<K, V>) getEntry(key);
 		if (e == null)
@@ -138,10 +81,6 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 		return e.value;
 	}
 
-	/**
-	 * Removes all of the mappings from this map.
-	 * The map will be empty after this call returns.
-	 */
 	public void clear() {
 		super.clear();
 		header.before = header.after = header;
@@ -176,12 +115,6 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 			after.before = this;
 		}
 
-		/**
-		 * This method is invoked by the superclass whenever the value
-		 * of a pre-existing entry is read by Map.get or modified by Map.set.
-		 * If the enclosing Map is access-ordered, it moves the entry
-		 * to the end of the list; otherwise, it does nothing.
-		 */
 		void recordAccess(MyHashMap<K, V> m) {
 			MyLinkedHashMap<K, V> lm = (MyLinkedHashMap<K, V>) m;
 			if (lm.accessOrder) {
