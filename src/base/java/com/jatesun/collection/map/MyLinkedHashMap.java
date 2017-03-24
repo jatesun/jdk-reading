@@ -12,6 +12,17 @@ import java.util.NoSuchElementException;
 //import java.util.LinkedHashMap.LinkedHashIterator;
 //import java.util.LinkedHashMap.ValueIterator;
 
+/**
+ * 
+ * @author jatesun
+ * @description linkedhashmap是有序的hashmap，通过先后加入的元素之间构建链表形成
+ * @question
+ * 		·什么是有序、无序？
+ * 		·linkedhashmap是如何实现有序的？
+ * @date 2017年3月24日
+ * @param <K>
+ * @param <V>
+ */
 public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> {
 
 	private static final long serialVersionUID = 3801124242820219131L;
@@ -52,6 +63,7 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 
 	void transfer(MyHashMap.Entry[] newTable) {
 		int newCapacity = newTable.length;
+		// 转移到新的enry中。直接遍历有序链表即可。
 		for (Entry<K, V> e = header.after; e != header; e = e.after) {
 			int index = indexFor(e.hash, newCapacity);
 			e.next = newTable[index];
@@ -60,7 +72,6 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 	}
 
 	public boolean containsValue(Object value) {
-		// Overridden to take advantage of faster iterator
 		if (value == null) {
 			for (Entry e = header.after; e != header; e = e.after)
 				if (e.value == null)
@@ -86,28 +97,19 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 		header.before = header.after = header;
 	}
 
-	/**
-	 * LinkedHashMap entry.
-	 */
 	private static class Entry<K, V> extends MyHashMap.Entry<K, V> {
-		// These fields comprise the doubly linked list used for iteration.
 		Entry<K, V> before, after;
 
 		Entry(int hash, K key, V value, MyHashMap.Entry<K, V> next) {
 			super(hash, key, value, next);
 		}
 
-		/**
-		 * Removes this entry from the linked list.
-		 */
 		private void remove() {
 			before.after = after;
 			after.before = before;
 		}
 
-		/**
-		 * Inserts this entry before the specified existing entry in the list.
-		 */
+		// addbefore方法
 		private void addBefore(Entry<K, V> existingEntry) {
 			after = existingEntry;
 			before = existingEntry.before;
@@ -198,15 +200,8 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 		return new EntryIterator();
 	}
 
-	/**
-	 * This override alters behavior of superclass put method. It causes newly
-	 * allocated entry to get inserted at the end of the linked list and
-	 * removes the eldest entry if appropriate.
-	 */
 	void addEntry(int hash, K key, V value, int bucketIndex) {
 		createEntry(hash, key, value, bucketIndex);
-
-		// Remove eldest entry if instructed, else grow capacity if appropriate
 		Entry<K, V> eldest = header.after;
 		if (removeEldestEntry(eldest)) {
 			removeEntryForKey(eldest.key);
@@ -216,10 +211,7 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 		}
 	}
 
-	/**
-	 * This override differs from addEntry in that it doesn't resize the
-	 * table or remove the eldest entry.
-	 */
+	// 新建节点方法
 	void createEntry(int hash, K key, V value, int bucketIndex) {
 		MyHashMap.Entry<K, V> old = table[bucketIndex];
 		Entry<K, V> e = new Entry<K, V>(hash, key, value, old);
@@ -227,48 +219,6 @@ public class MyLinkedHashMap<K, V> extends MyHashMap<K, V> implements Map<K, V> 
 		e.addBefore(header);
 		size++;
 	}
-
-	/**
-	 * Returns <tt>true</tt> if this map should remove its eldest entry.
-	 * This method is invoked by <tt>put</tt> and <tt>putAll</tt> after
-	 * inserting a new entry into the map.  It provides the implementor
-	 * with the opportunity to remove the eldest entry each time a new one
-	 * is added.  This is useful if the map represents a cache: it allows
-	 * the map to reduce memory consumption by deleting stale entries.
-	 *
-	 * <p>Sample use: this override will allow the map to grow up to 100
-	 * entries and then delete the eldest entry each time a new entry is
-	 * added, maintaining a steady state of 100 entries.
-	 * <pre>
-	 *     private static final int MAX_ENTRIES = 100;
-	 *
-	 *     protected boolean removeEldestEntry(Map.Entry eldest) {
-	 *        return size() > MAX_ENTRIES;
-	 *     }
-	 * </pre>
-	 *
-	 * <p>This method typically does not modify the map in any way,
-	 * instead allowing the map to modify itself as directed by its
-	 * return value.  It <i>is</i> permitted for this method to modify
-	 * the map directly, but if it does so, it <i>must</i> return
-	 * <tt>false</tt> (indicating that the map should not attempt any
-	 * further modification).  The effects of returning <tt>true</tt>
-	 * after modifying the map from within this method are unspecified.
-	 *
-	 * <p>This implementation merely returns <tt>false</tt> (so that this
-	 * map acts like a normal map - the eldest element is never removed).
-	 *
-	 * @param    eldest The least recently inserted entry in the map, or if
-	 *           this is an access-ordered map, the least recently accessed
-	 *           entry.  This is the entry that will be removed it this
-	 *           method returns <tt>true</tt>.  If the map was empty prior
-	 *           to the <tt>put</tt> or <tt>putAll</tt> invocation resulting
-	 *           in this invocation, this will be the entry that was just
-	 *           inserted; in other words, if the map contains a single
-	 *           entry, the eldest entry is also the newest.
-	 * @return   <tt>true</tt> if the eldest entry should be removed
-	 *           from the map; <tt>false</tt> if it should be retained.
-	 */
 	protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
 		return false;
 	}
