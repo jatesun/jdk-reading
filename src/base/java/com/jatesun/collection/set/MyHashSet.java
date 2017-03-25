@@ -10,13 +10,21 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * 
+ * @author jatesun
+ * @description hashset内部维护hashmap，用key来存储值。很简单，不做解释
+ * @question
+ * @date 2017年3月25日
+ * @param <E>
+ */
 public class MyHashSet<E> extends AbstractSet<E> implements Set<E>, Cloneable, java.io.Serializable {
 
 	static final long serialVersionUID = -5024744406713321676L;
 
 	private transient HashMap<E, Object> map;
 
-	private static final Object PRESENT = new Object();
+	private static final Object PRESENT = new Object();//占位对象，放在hashmap中value中
 
 	public MyHashSet() {
 		map = new HashMap<E, Object>();
