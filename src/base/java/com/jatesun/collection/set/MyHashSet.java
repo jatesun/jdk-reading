@@ -13,7 +13,8 @@ import java.util.Set;
 /**
  * 
  * @author jatesun
- * @description hashset内部维护hashmap，用key来存储值。很简单，不做解释
+ * @description hashset内部维护hashmap，用key来存储值。很简单，不做解释.另外linkedhashset继承与hashset，内部是
+ * 		linkedhashmap完成的，也很简单，不在赘述（构造方法dummy参数）
  * @question
  * @date 2017年3月25日
  * @param <E>
@@ -24,7 +25,7 @@ public class MyHashSet<E> extends AbstractSet<E> implements Set<E>, Cloneable, j
 
 	private transient HashMap<E, Object> map;
 
-	private static final Object PRESENT = new Object();//占位对象，放在hashmap中value中
+	private static final Object PRESENT = new Object();// 占位对象，放在hashmap中value中
 
 	public MyHashSet() {
 		map = new HashMap<E, Object>();
@@ -43,6 +44,7 @@ public class MyHashSet<E> extends AbstractSet<E> implements Set<E>, Cloneable, j
 		map = new HashMap<E, Object>(initialCapacity);
 	}
 
+	// 便于linkedhashset使用
 	MyHashSet(int initialCapacity, float loadFactor, boolean dummy) {
 		map = new LinkedHashMap<E, Object>(initialCapacity, loadFactor);
 	}
