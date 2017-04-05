@@ -545,7 +545,7 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
         }
 
         public void clear() {
-            TreeMap.this.clear();
+        	MyTreeMap.this.clear();
         }
     }
 
@@ -577,11 +577,11 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
         }
 
         public int size() {
-            return TreeMap.this.size();
+            return MyTreeMap.this.size();
         }
 
         public void clear() {
-            TreeMap.this.clear();
+        	MyTreeMap.this.clear();
         }
     }
 
@@ -766,12 +766,12 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
         return (o1==null ? o2==null : o1.equals(o2));
     }
 
-    static <K,V> Map.Entry<K,V> exportEntry(TreeMap.Entry<K,V> e) {
+    static <K,V> Map.Entry<K,V> exportEntry(MyTreeMap.Entry<K,V> e) {
         return e == null? null :
             new AbstractMap.SimpleImmutableEntry<K,V>(e);
     }
 
-    static <K,V> K keyOrNull(TreeMap.Entry<K,V> e) {
+    static <K,V> K keyOrNull(MyTreeMap.Entry<K,V> e) {
         return e == null? null : e.key;
     }
 
@@ -852,44 +852,44 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
             return inclusive ? inRange(key) : inClosedRange(key);
         }
 
-        final TreeMap.Entry<K,V> absLowest() {
-	    TreeMap.Entry<K,V> e =
+        final MyTreeMap.Entry<K,V> absLowest() {
+        	MyTreeMap.Entry<K,V> e =
                 (fromStart ?  m.getFirstEntry() :
                  (loInclusive ? m.getCeilingEntry(lo) :
                                 m.getHigherEntry(lo)));
             return (e == null || tooHigh(e.key)) ? null : e;
         }
 
-        final TreeMap.Entry<K,V> absHighest() {
-	    TreeMap.Entry<K,V> e =
+        final MyTreeMap.Entry<K,V> absHighest() {
+        	MyTreeMap.Entry<K,V> e =
                 (toEnd ?  m.getLastEntry() :
                  (hiInclusive ?  m.getFloorEntry(hi) :
                                  m.getLowerEntry(hi)));
             return (e == null || tooLow(e.key)) ? null : e;
         }
 
-        final TreeMap.Entry<K,V> absCeiling(K key) {
+        final MyTreeMap.Entry<K,V> absCeiling(K key) {
             if (tooLow(key))
                 return absLowest();
-	    TreeMap.Entry<K,V> e = m.getCeilingEntry(key);
+            MyTreeMap.Entry<K,V> e = m.getCeilingEntry(key);
             return (e == null || tooHigh(e.key)) ? null : e;
         }
 
-        final TreeMap.Entry<K,V> absHigher(K key) {
+        final MyTreeMap.Entry<K,V> absHigher(K key) {
             if (tooLow(key))
                 return absLowest();
-	    TreeMap.Entry<K,V> e = m.getHigherEntry(key);
+            MyTreeMap.Entry<K,V> e = m.getHigherEntry(key);
             return (e == null || tooHigh(e.key)) ? null : e;
         }
 
-        final TreeMap.Entry<K,V> absFloor(K key) {
+        final MyTreeMap.Entry<K,V> absFloor(K key) {
             if (tooHigh(key))
                 return absHighest();
-	    TreeMap.Entry<K,V> e = m.getFloorEntry(key);
+            MyTreeMap.Entry<K,V> e = m.getFloorEntry(key);
             return (e == null || tooLow(e.key)) ? null : e;
         }
 
-        final TreeMap.Entry<K,V> absLower(K key) {
+        final MyTreeMap.Entry<K,V> absLower(K key) {
             if (tooHigh(key))
                 return absHighest();
 	    TreeMap.Entry<K,V> e = m.getLowerEntry(key);
@@ -897,14 +897,14 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
         }
 
         /** Returns the absolute high fence for ascending traversal */
-        final TreeMap.Entry<K,V> absHighFence() {
+        final MyTreeMap.Entry<K,V> absHighFence() {
             return (toEnd ? null : (hiInclusive ?
                                     m.getHigherEntry(hi) :
                                     m.getCeilingEntry(hi)));
         }
 
         /** Return the absolute low fence for descending traversal  */
-        final TreeMap.Entry<K,V> absLowFence() {
+        final MyTreeMap.Entry<K,V> absLowFence() {
             return (fromStart ? null : (loInclusive ?
                                         m.getLowerEntry(lo) :
                                         m.getFloorEntry(lo)));
@@ -913,12 +913,12 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
         // Abstract methods defined in ascending vs descending classes
         // These relay to the appropriate absolute versions
 
-        abstract TreeMap.Entry<K,V> subLowest();
-        abstract TreeMap.Entry<K,V> subHighest();
-        abstract TreeMap.Entry<K,V> subCeiling(K key);
-        abstract TreeMap.Entry<K,V> subHigher(K key);
-        abstract TreeMap.Entry<K,V> subFloor(K key);
-        abstract TreeMap.Entry<K,V> subLower(K key);
+        abstract MyTreeMap.Entry<K,V> subLowest();
+        abstract MyTreeMap.Entry<K,V> subHighest();
+        abstract MyTreeMap.Entry<K,V> subCeiling(K key);
+        abstract MyTreeMap.Entry<K,V> subHigher(K key);
+        abstract MyTreeMap.Entry<K,V> subFloor(K key);
+        abstract MyTreeMap.Entry<K,V> subLower(K key);
 
         /** Returns ascending iterator from the perspective of this submap */
         abstract Iterator<K> keyIterator();
@@ -1003,7 +1003,7 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
         }
 
         public final Map.Entry<K,V> pollFirstEntry() {
-	    TreeMap.Entry<K,V> e = subLowest();
+        	MyTreeMap.Entry<K,V> e = subLowest();
             Map.Entry<K,V> result = exportEntry(e);
             if (e != null)
                 m.deleteEntry(e);
@@ -1011,7 +1011,7 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
         }
 
         public final Map.Entry<K,V> pollLastEntry() {
-	    TreeMap.Entry<K,V> e = subHighest();
+        	MyTreeMap.Entry<K,V> e = subHighest();
             Map.Entry<K,V> result = exportEntry(e);
             if (e != null)
                 m.deleteEntry(e);
@@ -1026,7 +1026,7 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
         public final NavigableSet<K> navigableKeySet() {
             KeySet<K> nksv = navigableKeySetView;
             return (nksv != null) ? nksv :
-                (navigableKeySetView = new TreeMap.KeySet(this));
+                (navigableKeySetView = new MyTreeMap.KeySet(this));
         }
 
         public final Set<K> keySet() {
@@ -1070,7 +1070,7 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
             }
 
             public boolean isEmpty() {
-                TreeMap.Entry<K,V> n = absLowest();
+            	MyTreeMap.Entry<K,V> n = absLowest();
                 return n == null || tooHigh(n.key);
             }
 
@@ -1081,7 +1081,7 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
                 K key = entry.getKey();
                 if (!inRange(key))
                     return false;
-                TreeMap.Entry node = m.getEntry(key);
+                MyTreeMap.Entry node = m.getEntry(key);
                 return node != null &&
                     valEquals(node.getValue(), entry.getValue());
             }
@@ -1093,7 +1093,7 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
                 K key = entry.getKey();
                 if (!inRange(key))
                     return false;
-                TreeMap.Entry<K,V> node = m.getEntry(key);
+                MyTreeMap.Entry<K,V> node = m.getEntry(key);
                 if (node!=null && valEquals(node.getValue(),entry.getValue())){
                     m.deleteEntry(node);
                     return true;
@@ -1106,12 +1106,12 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
          * Iterators for SubMaps
          */
         abstract class SubMapIterator<T> implements Iterator<T> {
-            TreeMap.Entry<K,V> lastReturned;
-            TreeMap.Entry<K,V> next;
+        	MyTreeMap.Entry<K,V> lastReturned;
+        	MyTreeMap.Entry<K,V> next;
             final K fenceKey;
             int expectedModCount;
 
-            SubMapIterator(TreeMap.Entry<K,V> first,
+            SubMapIterator(MyTreeMap.Entry<K,V> first,
                            TreeMap.Entry<K,V> fence) {
                 expectedModCount = m.modCount;
                 lastReturned = null;
@@ -1123,7 +1123,7 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
                 return next != null && next.key != fenceKey;
             }
 
-            final TreeMap.Entry<K,V> nextEntry() {
+            final MyTreeMap.Entry<K,V> nextEntry() {
                 TreeMap.Entry<K,V> e = next;
                 if (e == null || e.key == fenceKey)
                     throw new NoSuchElementException();
@@ -1134,7 +1134,7 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
                 return e;
             }
 
-            final TreeMap.Entry<K,V> prevEntry() {
+            final MyTreeMap.Entry<K,V> prevEntry() {
                 TreeMap.Entry<K,V> e = next;
                 if (e == null || e.key == fenceKey)
                     throw new NoSuchElementException();
@@ -1171,8 +1171,8 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
         }
 
         final class SubMapEntryIterator extends SubMapIterator<Map.Entry<K,V>> {
-            SubMapEntryIterator(TreeMap.Entry<K,V> first,
-                                TreeMap.Entry<K,V> fence) {
+            SubMapEntryIterator(MyTreeMap.Entry<K,V> first,
+            		MyTreeMap.Entry<K,V> fence) {
                 super(first, fence);
             }
             public Map.Entry<K,V> next() {
@@ -1184,8 +1184,8 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
         }
 
         final class SubMapKeyIterator extends SubMapIterator<K> {
-            SubMapKeyIterator(TreeMap.Entry<K,V> first,
-                              TreeMap.Entry<K,V> fence) {
+            SubMapKeyIterator(MyTreeMap.Entry<K,V> first,
+            		MyTreeMap.Entry<K,V> fence) {
                 super(first, fence);
             }
             public K next() {
@@ -1197,8 +1197,8 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
         }
 
         final class DescendingSubMapEntryIterator extends SubMapIterator<Map.Entry<K,V>> {
-            DescendingSubMapEntryIterator(TreeMap.Entry<K,V> last,
-                                          TreeMap.Entry<K,V> fence) {
+            DescendingSubMapEntryIterator(MyTreeMap.Entry<K,V> last,
+            		MyTreeMap.Entry<K,V> fence) {
                 super(last, fence);
             }
 
@@ -1211,8 +1211,8 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
         }
 
         final class DescendingSubMapKeyIterator extends SubMapIterator<K> {
-            DescendingSubMapKeyIterator(TreeMap.Entry<K,V> last,
-                                        TreeMap.Entry<K,V> fence) {
+            DescendingSubMapKeyIterator(MyTreeMap.Entry<K,V> last,
+            		MyTreeMap.Entry<K,V> fence) {
                 super(last, fence);
             }
             public K next() {
@@ -1230,7 +1230,7 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
     static final class AscendingSubMap<K,V> extends NavigableSubMap<K,V> {
         private static final long serialVersionUID = 912986545866124060L;
 
-        AscendingSubMap(TreeMap<K,V> m,
+        AscendingSubMap(MyTreeMap<K,V> m,
                         boolean fromStart, K lo, boolean loInclusive,
                         boolean toEnd,     K hi, boolean hiInclusive) {
             super(m, fromStart, lo, loInclusive, toEnd, hi, hiInclusive);
@@ -1376,12 +1376,12 @@ public class MyTreeMap<K, V> extends AbstractMap<K, V> implements NavigableMap<K
             return (es != null) ? es : new DescendingEntrySetView();
         }
 
-        TreeMap.Entry<K,V> subLowest()       { return absHighest(); }
-        TreeMap.Entry<K,V> subHighest()      { return absLowest(); }
-        TreeMap.Entry<K,V> subCeiling(K key) { return absFloor(key); }
-        TreeMap.Entry<K,V> subHigher(K key)  { return absLower(key); }
-        TreeMap.Entry<K,V> subFloor(K key)   { return absCeiling(key); }
-        TreeMap.Entry<K,V> subLower(K key)   { return absHigher(key); }
+        MyTreeMap.Entry<K,V> subLowest()       { return absHighest(); }
+        MyTreeMap.Entry<K,V> subHighest()      { return absLowest(); }
+        MyTreeMap.Entry<K,V> subCeiling(K key) { return absFloor(key); }
+        MyTreeMap.Entry<K,V> subHigher(K key)  { return absLower(key); }
+        MyTreeMap.Entry<K,V> subFloor(K key)   { return absCeiling(key); }
+        MyTreeMap.Entry<K,V> subLower(K key)   { return absHigher(key); }
     }
     private class SubMap extends AbstractMap<K,V>
 	implements SortedMap<K,V>, java.io.Serializable {
